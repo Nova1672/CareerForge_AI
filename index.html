@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerForge AI — Mock Interview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f8f6;
+      --surface: #ffffff;
+      --surface-alt: #f1f0ee;
+      --border: #e2e0dc;
+      --text: #1a1917;
+      --text-muted: #6b6967;
+      --accent: #1e3a5f;
+      --accent-light: #e8edf4;
+      --success: #2d6a4f;
+      --success-light: #d8f3e4;
+      --warning: #b45309;
+      --warning-light: #fef3c7;
+      --danger: #991b1b;
+      --danger-light: #fee2e2;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* ── Header ── */
+    .app-header {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 54px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .app-header .logo {
+      font-size: 1rem; font-weight: 700;
+      color: var(--accent); letter-spacing: -0.02em;
+    }
+    .header-badge {
+      font-size: 12px; font-weight: 500;
+      color: var(--success); background: var(--success-light);
+      border: 1px solid #a7f3d0; border-radius: 6px;
+      padding: 3px 10px;
+    }
+    .header-badge.warn {
+      color: var(--warning); background: var(--warning-light);
+      border-color: #fcd34d;
+    }
+
+    /* ── Layout ── */
+    .main { max-width: 700px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; margin-bottom: 36px; }
+    .hero h1 {
+      font-size: 2.1rem; font-weight: 700;
+      letter-spacing: -0.03em; color: var(--accent); margin-bottom: 8px;
+    }
+    .hero .tagline { font-size: .92rem; color: var(--text-muted); font-weight: 500; }
+    .hero .powered-by {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; font-size: .78rem; color: var(--text-muted);
+      background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: 99px; padding: 4px 12px;
+    }
+    .hero .powered-by span { color: var(--accent); font-weight: 600; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+    }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: .83rem; font-weight: 600;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .form-group .hint {
+      font-size: .76rem; color: var(--text-muted); font-weight: 400;
+      margin-left: 5px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 7px;
+      padding: 10px 13px; font-family: inherit; font-size: .88rem;
+      color: var(--text); outline: none; resize: vertical;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30,58,95,.1);
+    }
+    .form-group textarea { min-height: 72px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 7px; padding: 11px 24px; border-radius: 7px;
+      font-family: inherit; font-size: .9rem; font-weight: 600;
+      cursor: pointer; border: none;
+      transition: background .15s, opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; margin-top: 4px; }
+    .btn-primary:hover:not(:disabled) { background: #162d4a; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      background: var(--surface-alt); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--accent-light); color: var(--accent); }
+    .btn-outline {
+      background: transparent; color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+    .btn-outline:hover { background: var(--accent-light); }
+
+    /* ── Progress ── */
+    .progress-wrap { margin-bottom: 28px; }
+    .progress-meta {
+      display: flex; justify-content: space-between;
+      font-size: .8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 7px;
+    }
+    .progress-track { height: 5px; background: var(--surface-alt); border-radius: 99px; overflow: hidden; }
+    .progress-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 99px; transition: width .4s ease;
+    }
+
+    /* ── Question ── */
+    .q-label {
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .09em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
+    }
+    .q-type-tag {
+      display: inline-block; font-size: .7rem; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase;
+      background: var(--accent-light); color: var(--accent);
+      border-radius: 4px; padding: 2px 7px; margin-left: 8px;
+    }
+    .q-text {
+      font-size: 1.08rem; font-weight: 500;
+      line-height: 1.6; color: var(--text); margin-bottom: 22px;
+    }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 17px; height: 17px; flex-shrink: 0;
+      border: 2.5px solid rgba(255,255,255,.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+    }
+    .spinner-dark {
+      border-color: rgba(30,58,95,.15);
+      border-top-color: var(--accent);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-row {
+      display: flex; align-items: center; gap: 9px;
+      color: var(--text-muted); font-size: .88rem; padding: 8px 0;
+    }
+
+    /* ── Feedback ── */
+    .feedback-card { animation: fadeUp .3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .score-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 99px;
+      font-size: 1rem; font-weight: 700; margin-bottom: 22px;
+    }
+    .score-badge.good { background: var(--success-light); color: var(--success); }
+    .score-badge.avg  { background: var(--warning-light); color: var(--warning); }
+    .score-badge.poor { background: var(--danger-light);  color: var(--danger); }
+
+    .fb-section { margin-bottom: 18px; }
+    .fb-section h3 {
+      font-size: .76rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 9px;
+    }
+    .fb-section h3.s-strengths    { color: var(--success); }
+    .fb-section h3.s-improvements { color: var(--warning); }
+    .fb-section h3.s-example      { color: var(--accent); }
+    .fb-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .fb-list li {
+      font-size: .87rem; padding-left: 16px;
+      position: relative; line-height: 1.6;
+    }
+    .fb-list li::before { content: '•'; position: absolute; left: 0; color: var(--text-muted); }
+    .better-answer {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 7px 7px 0;
+      padding: 13px 16px;
+      font-size: .86rem; line-height: 1.7;
+      color: var(--text); font-style: italic;
+    }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 22px 0; }
+
+    /* ── Summary ── */
+    .summary-head { text-align: center; margin-bottom: 28px; }
+    .summary-head h2 {
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: -0.02em; color: var(--accent); margin-bottom: 5px;
+    }
+    .overall-score-box {
+      display: inline-flex; flex-direction: column; align-items: center;
+      padding: 18px 44px; border-radius: var(--radius); margin-top: 14px;
+    }
+    .overall-score-box .num {
+      font-size: 3rem; font-weight: 700; line-height: 1;
+    }
+    .overall-score-box .lbl {
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase; margin-top: 5px; opacity: .7;
+    }
+    .breakdown-tbl { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    .breakdown-tbl th {
+      text-align: left; font-size: .72rem; font-weight: 600;
+      letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted);
+      padding: 0 0 8px; border-bottom: 1px solid var(--border);
+    }
+    .breakdown-tbl td {
+      padding: 9px 0; border-bottom: 1px solid var(--border); vertical-align: top;
+    }
+    .breakdown-tbl td.score-cell { text-align: right; white-space: nowrap; }
+    .breakdown-tbl tr:last-child td { border-bottom: none; }
+    .score-pill {
+      display: inline-block; padding: 2px 10px;
+      border-radius: 99px; font-size: .78rem; font-weight: 700;
+    }
+    .score-pill.good { background: var(--success-light); color: var(--success); }
+    .score-pill.avg  { background: var(--warning-light); color: var(--warning); }
+    .score-pill.poor { background: var(--danger-light);  color: var(--danger); }
+
+    .sum-section { margin-bottom: 20px; }
+    .sum-section h3 {
+      font-size: .76rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px;
+    }
+    .sum-section h3.s-str { color: var(--success); }
+    .sum-section h3.s-imp { color: var(--warning); }
+    .sum-section h3.s-road{ color: var(--accent); }
+    .sum-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .sum-list li {
+      font-size: .87rem; padding-left: 18px;
+      position: relative; line-height: 1.6;
+    }
+    .sum-list li::before {
+      content: '→'; position: absolute; left: 0;
+      color: var(--text-muted); font-size: .78rem; top: 3px;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      background: var(--danger-light); border: 1px solid #fca5a5;
+      border-radius: 7px; padding: 13px 16px; font-size: .86rem;
+      color: var(--danger); margin-top: 14px; display: none;
+    }
+    .error-box.show { display: block; animation: fadeUp .2s ease; }
+
+    /* ── System status bar ── */
+    .status-bar {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .78rem; color: var(--text-muted);
+      background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: 7px; padding: 9px 14px; margin-bottom: 24px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .status-dot.green { background: #22c55e; }
+    .status-dot.yellow { background: #f59e0b; animation: pulse 1.2s infinite; }
+    .status-dot.red { background: #ef4444; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Screen ── */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeUp .28s ease; }
+
+    @media (max-width: 480px) {
+      .main { padding: 30px 14px 60px; }
+      .card { padding: 22px 16px; }
+      .hero h1 { font-size: 1.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="app-header">
+  <div class="logo">CareerForge AI</div>
+  <span class="header-badge" id="modelBadge" style="display:none"></span>
+</header>
+
+<!-- ── Main ── -->
+<main class="main">
+
+  <!-- ── Screen 1: Setup ── -->
+  <div class="screen active" id="screenSetup">
+    <div class="hero">
+      <h1>CareerForge AI</h1>
+      <p class="tagline">AI-Powered Mock Interview Preparation & Evaluation</p>
+      <div class="powered-by">Powered by <span>IBM Bob ADK</span> + <span>Ollama / Gemma 4</span> · Local · No API Key</div>
+    </div>
+
+    <!-- System status -->
+    <div class="status-bar" id="statusBar">
+      <span class="status-dot yellow" id="statusDot"></span>
+      <span id="statusText">Checking AI model status…</span>
+    </div>
+
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="jobRole">Target Job Role <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="jobRole" placeholder="e.g., Data Scientist Intern" />
+        </div>
+        <div class="form-group">
+          <label for="expLevel">Experience Level <span style="color:var(--danger)">*</span></label>
+          <select id="expLevel">
+            <option value="">Select…</option>
+            <option value="Student / Entry Level (0–1 years)">Student / Entry Level (0–1 yrs)</option>
+            <option value="Junior (1–3 years)">Junior (1–3 yrs)</option>
+            <option value="Mid-Level (3–6 years)">Mid-Level (3–6 yrs)</option>
+            <option value="Senior (6–10 years)">Senior (6–10 yrs)</option>
+            <option value="Lead / Principal (10+ years)">Lead / Principal (10+ yrs)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="keySkills">Key Skills <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="keySkills" placeholder="e.g., Python, Pandas, SQL, Scikit-learn, Machine Learning" />
+      </div>
+
+      <div class="form-group">
+        <label for="projectDetails">Project Details <span class="hint">(optional)</span></label>
+        <textarea id="projectDetails" placeholder="Describe any relevant projects, internships, or work experience…"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="candidateInfo">Resume / Candidate Background <span class="hint">(optional)</span></label>
+        <textarea id="candidateInfo" placeholder="Paste a brief bio, key achievements, or relevant background…"></textarea>
+      </div>
+
+      <div class="error-box" id="setupError"></div>
+      <button class="btn btn-primary" id="btnStart" disabled>
+        <span class="spinner" id="startSpinner" style="display:none"></span>
+        Start Interview →
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Screen 2+3: Interview + Feedback ── -->
+  <div class="screen" id="screenInterview">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="progressLabel">Question 1 of 5</span>
+        <span id="progressPct">20%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:20%"></div>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <div class="card" id="questionCard">
+      <div class="q-label">
+        <span id="qLabel">Question 1</span>
+        <span class="q-type-tag" id="qTypeTag">Behavioral</span>
+      </div>
+      <div class="q-text" id="qText">
+        <div class="loading-row">
+          <span class="spinner spinner-dark"></span>
+          Generating question…
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <label for="userAnswer">Your Answer <span style="font-size:.75rem;color:var(--text-muted);font-weight:400;">(Ctrl+Enter to submit)</span></label>
+        <textarea id="userAnswer" rows="5" placeholder="Type your answer here…" disabled></textarea>
+      </div>
+      <button class="btn btn-primary" id="btnSubmit" disabled>
+        <span class="spinner" id="submitSpinner" style="display:none"></span>
+        <span id="submitText">Submit Answer →</span>
+      </button>
+      <div class="error-box" id="interviewError"></div>
+    </div>
+
+    <!-- Feedback injected here -->
+    <div id="feedbackArea"></div>
+  </div>
+
+  <!-- ── Screen 4: Summary ── -->
+  <div class="screen" id="screenSummary">
+    <div class="card">
+      <div class="summary-head">
+        <h2>🎯 Interview Complete!</h2>
+        <p style="font-size:.88rem;color:var(--text-muted);">Performance summary across all 5 questions</p>
+        <div class="overall-score-box good" id="overallBox">
+          <span class="num" id="overallNum">—</span>
+          <span class="lbl">Overall Score / 10</span>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Breakdown table -->
+      <div style="margin-bottom:24px;">
+        <h3 style="font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Question Breakdown</h3>
+        <table class="breakdown-tbl">
+          <thead><tr><th>Question</th><th>Score</th></tr></thead>
+          <tbody id="breakdownBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Summary content -->
+      <div id="summaryContent">
+        <div class="loading-row" style="padding:12px 0;">
+          <span class="spinner spinner-dark"></span>
+          Generating your performance summary…
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <button class="btn btn-secondary" id="btnRestart" style="width:100%;">↺ Start New Interview</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const API_BASE = '';   // same origin — backend serves index.html
+const TOTAL_Q  = 5;
+
+const Q_TYPES = {
+  1: 'Behavioral',
+  2: 'Technical',
+  3: 'Applied',
+  4: 'Project',
+  5: 'HR / Situational',
+};
+
+// ── State ───────────────────────────────────────────────────────────────────
+let state = {
+  profile: null,
+  currentQ: 0,          // 0-indexed
+  questions: [],
+  answers: [],
+  scores: [],
+  feedbacks: [],
+};
+
+// ── DOM helpers ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const screens = { setup: $('screenSetup'), interview: $('screenInterview'), summary: $('screenSummary') };
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[name].classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function scoreClass(s) {
+  return s >= 7 ? 'good' : s >= 4 ? 'avg' : 'poor';
+}
+
+function showError(id, msg) {
+  const el = $(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function hideError(id) {
+  $(id).classList.remove('show');
+}
+
+// ── API calls ───────────────────────────────────────────────────────────────
+async function apiFetch(endpoint, body) {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Server error ${res.status}`);
+  }
+  return res.json();
+}
+
+// ── Status check ─────────────────────────────────────────────────────────────
+async function checkStatus() {
+  const dot  = $('statusDot');
+  const text = $('statusText');
+  const btn  = $('btnStart');
+  try {
+    const data = await fetch(`${API_BASE}/api/status`).then(r => r.json());
+    if (data.modelReady) {
+      dot.className  = 'status-dot green';
+      text.textContent = `✓ AI model ready — ${data.activeModel} via Ollama (local)`;
+      btn.disabled   = false;
+      const badge = $('modelBadge');
+      badge.textContent = `🤖 ${data.activeModel}`;
+      badge.style.display = 'inline-block';
+    } else {
+      dot.className  = 'status-dot yellow';
+      text.textContent = `⚠ Ollama connected but model "${data.activeModel}" not found. Run: ollama pull gemma4`;
+      btn.disabled   = false; // still allow attempt
+    }
+  } catch {
+    dot.className  = 'status-dot red';
+    text.textContent = '✗ Cannot reach backend. Make sure server.py is running on port 8000.';
+    btn.disabled   = true;
+  }
+}
+
+// ── Setup ───────────────────────────────────────────────────────────────────
+$('btnStart').addEventListener('click', startInterview);
+
+async function startInterview() {
+  const role    = $('jobRole').value.trim();
+  const exp     = $('expLevel').value;
+  const skills  = $('keySkills').value.trim();
+  const proj    = $('projectDetails').value.trim();
+  const cand    = $('candidateInfo').value.trim();
+
+  hideError('setupError');
+  if (!role)   { showError('setupError', 'Please enter your target job role.'); $('jobRole').focus(); return; }
+  if (!exp)    { showError('setupError', 'Please select your experience level.'); $('expLevel').focus(); return; }
+  if (!skills) { showError('setupError', 'Please enter at least one key skill.'); $('keySkills').focus(); return; }
+
+  state = { profile: { jobRole: role, experienceLevel: exp, keySkills: skills, projectDetails: proj, candidateInfo: cand }, currentQ: 0, questions: [], answers: [], scores: [], feedbacks: [] };
+
+  $('btnStart').disabled = true;
+  $('startSpinner').style.display = 'inline-block';
+  $('btnStart').lastChild.textContent = ' Preparing interview…';
+
+  showScreen('interview');
+  loadQuestion();
+}
+
+// ── Interview flow ───────────────────────────────────────────────────────────
+function updateProgress() {
+  const n   = state.currentQ + 1;
+  const pct = Math.round((n / TOTAL_Q) * 100);
+  $('progressLabel').textContent = `Question ${n} of ${TOTAL_Q}`;
+  $('progressPct').textContent   = `${pct}%`;
+  $('progressFill').style.width  = `${pct}%`;
+  $('qLabel').textContent        = `Question ${n}`;
+  $('qTypeTag').textContent      = Q_TYPES[n] || 'Interview';
+}
+
+async function loadQuestion() {
+  updateProgress();
+  $('feedbackArea').innerHTML = '';
+  $('userAnswer').value    = '';
+  $('userAnswer').disabled = true;
+  $('btnSubmit').disabled  = true;
+  hideError('interviewError');
+
+  $('qText').innerHTML = `<div class="loading-row"><span class="spinner spinner-dark"></span> Generating question…</div>`;
+
+  try {
+    const data = await apiFetch('/api/generate-question', {
+      profile: state.profile,
+      questionNumber: state.currentQ + 1,
+      previousQuestions: state.questions,
+    });
+
+    state.questions.push(data.question);
+    $('qText').textContent   = data.question;
+    $('userAnswer').disabled = false;
+    $('btnSubmit').disabled  = false;
+    $('userAnswer').focus();
+  } catch (err) {
+    $('qText').textContent = '';
+    showError('interviewError', `⚠ ${err.message}`);
+    // Show retry button
+    $('feedbackArea').innerHTML = `<button class="btn btn-outline" style="margin-top:12px;" id="btnRetryQ">↺ Retry Question</button>`;
+    $('btnRetryQ').addEventListener('click', () => { state.questions.pop(); loadQuestion(); });
+  }
+}
+
+$('btnSubmit').addEventListener('click', submitAnswer);
+$('userAnswer').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitAnswer();
+});
+
+async function submitAnswer() {
+  const answer = $('userAnswer').value.trim();
+  if (!answer) { $('userAnswer').focus(); return; }
+
+  $('userAnswer').disabled = true;
+  $('btnSubmit').disabled  = true;
+  $('submitSpinner').style.display = 'inline-block';
+  $('submitText').textContent      = 'Evaluating…';
+  hideError('interviewError');
+  $('feedbackArea').innerHTML      = '';
+
+  state.answers.push(answer);
+
+  try {
+    const feedback = await apiFetch('/api/evaluate-answer', {
+      profile: state.profile,
+      question: state.questions[state.currentQ],
+      answer,
+      questionNumber: state.currentQ + 1,
+    });
+
+    state.scores.push(feedback.score);
+    state.feedbacks.push(feedback);
+    renderFeedback(feedback);
+
+  } catch (err) {
+    state.answers.pop();
+    $('userAnswer').disabled = false;
+    $('submitText').textContent      = 'Submit Answer →';
+    $('submitSpinner').style.display = 'none';
+    $('btnSubmit').disabled  = false;
+    showError('interviewError', `⚠ ${err.message}`);
+  }
+}
+
+function renderFeedback(fb) {
+  $('submitText').textContent      = 'Submit Answer →';
+  $('submitSpinner').style.display = 'none';
+
+  const cls    = scoreClass(fb.score);
+  const isLast = state.currentQ === TOTAL_Q - 1;
+  const strHtml = fb.strengths.map(s => `<li>${escHtml(s)}</li>`).join('');
+  const impHtml = fb.improvements.map(s => `<li>${escHtml(s)}</li>`).join('');
+
+  $('feedbackArea').innerHTML = `
+    <div class="card feedback-card" style="margin-top:16px;">
+      <span class="score-badge ${cls}">⭐ Score: ${fb.score} / 10</span>
+
+      <div class="fb-section">
+        <h3 class="s-strengths">💪 Strengths</h3>
+        <ul class="fb-list">${strHtml}</ul>
+      </div>
+      <div class="fb-section">
+        <h3 class="s-improvements">🔧 Areas for Improvement</h3>
+        <ul class="fb-list">${impHtml}</ul>
+      </div>
+      <div class="fb-section">
+        <h3 class="s-example">✨ Better Example Answer</h3>
+        <div class="better-answer">${escHtml(fb.betterAnswer)}</div>
+      </div>
+
+      <hr class="divider" />
+      <button class="btn btn-primary" id="btnNext">
+        ${isLast ? 'See Final Summary →' : 'Next Question →'}
+      </button>
+    </div>`;
+
+  $('btnNext').addEventListener('click', () => {
+    state.currentQ++;
+    if (state.currentQ >= TOTAL_Q) {
+      showSummary();
+    } else {
+      $('feedbackArea').innerHTML = '';
+      loadQuestion();
+    }
+  });
+
+  $('feedbackArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ── Summary ──────────────────────────────────────────────────────────────────
+async function showSummary() {
+  showScreen('summary');
+
+  const avg = state.scores.reduce((a, b) => a + b, 0) / state.scores.length;
+  const avgRounded = Math.round(avg * 10) / 10;
+  $('overallNum').textContent = avgRounded;
+  const box = $('overallBox');
+  box.className = `overall-score-box score-badge ${scoreClass(Math.round(avg))}`;
+
+  // Breakdown table
+  $('breakdownBody').innerHTML = state.questions.map((q, i) => {
+    const sc   = state.scores[i];
+    const cls  = scoreClass(sc);
+    const short = q.length > 90 ? q.slice(0, 87) + '…' : q;
+    return `<tr>
+      <td style="color:var(--text-muted);font-size:.82rem;padding-right:12px;">${escHtml(short)}</td>
+      <td class="score-cell"><span class="score-pill ${cls}">${sc}/10</span></td>
+    </tr>`;
+  }).join('');
+
+  try {
+    const summary = await apiFetch('/api/generate-summary', {
+      profile: state.profile,
+      questions: state.questions,
+      answers: state.answers,
+      scores: state.scores,
+    });
+
+    const strHtml  = summary.overallStrengths.map(s => `<li>${escHtml(s)}</li>`).join('');
+    const impHtml  = summary.keyImprovements.map(s => `<li>${escHtml(s)}</li>`).join('');
+    const roadHtml = summary.preparationRoadmap.map(s => `<li>${escHtml(s)}</li>`).join('');
+
+    $('summaryContent').innerHTML = `
+      <div class="sum-section">
+        <h3 class="s-str">💪 Overall Strengths</h3>
+        <ul class="sum-list">${strHtml}</ul>
+      </div>
+      <div class="sum-section">
+        <h3 class="s-imp">🔧 Key Areas to Improve</h3>
+        <ul class="sum-list">${impHtml}</ul>
+      </div>
+      <div class="sum-section">
+        <h3 class="s-road">🚀 Preparation Roadmap</h3>
+        <ul class="sum-list">${roadHtml}</ul>
+      </div>`;
+  } catch (err) {
+    $('summaryContent').innerHTML = `<div class="error-box show">⚠ Could not generate summary: ${escHtml(err.message)}</div>`;
+  }
+}
+
+// ── Restart ──────────────────────────────────────────────────────────────────
+$('btnRestart').addEventListener('click', () => {
+  $('jobRole').value = '';
+  $('expLevel').value = '';
+  $('keySkills').value = '';
+  $('projectDetails').value = '';
+  $('candidateInfo').value = '';
+  $('btnStart').disabled = false;
+  $('startSpinner').style.display = 'none';
+  $('btnStart').lastChild.textContent = ' Start Interview →';
+  showScreen('setup');
+  checkStatus();
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+checkStatus();
+</script>
+</body>
+</html>

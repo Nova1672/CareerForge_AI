@@ -1,180 +1,322 @@
-# CareerForge AI
+# CareerForge AI — Agentic AI Interview Preparation & Evaluation System
 
-CareerForge AI is a RAG-based Agentic AI Interview Preparation and Evaluation System built using IBM watsonx Orchestrate.
+> **AICTE / IBM SkillsBuild / Edunet Foundation Internship Project**
 
-It is designed to conduct personalized mock interviews, evaluate candidate answers, provide structured feedback, and generate a final preparation roadmap.
+---
 
 ## Problem Statement
 
-**PS 22 — Interview Trainer Agent**
+Job seekers — especially students and early-career professionals — lack access to realistic, personalised mock interview practice. Existing tools either use expensive cloud APIs (requiring user API keys), provide static pre-written questions, or lack structured feedback grounded in the candidate's actual answers.
 
-Traditional interview preparation is often generic and does not adapt to a candidate’s role, skills, experience, or project background.
+CareerForge AI solves this by providing a fully agentic, locally-running mock interview system that:
+- Generates personalised questions based on the candidate's actual profile
+- Evaluates answers dynamically
+- Provides structured, grounded feedback without fabricating candidate-specific facts
+- Runs entirely locally — no external API key required
 
-CareerForge AI addresses this by creating a personalized interview workflow with answer evaluation and improvement feedback.
+---
 
-## Key Features
+## Features
 
-- Personalized interview questions based on role, skills, and experience
-- One-question-at-a-time interview flow
-- RAG-based interview knowledge retrieval
-- 1–10 answer evaluation framework
-- Strength and weakness identification
-- Improved example answers
-- Candidate Fact Grounding to reduce hallucination risk
-- Final interview performance summary
-- Preparation roadmap
+- 🎯 **Personalised Questions** — generated based on job role, experience level, skills, projects, and background
+- 🤖 **Agentic AI** — powered by IBM Bob ADK agent spec + Ollama local LLM (Gemma 4)
+- 🔒 **No API Key Required** — fully local inference via Ollama
+- 📊 **Structured Feedback** — score (1–10), strengths, improvements, better example answer per question
+- 🧭 **Final Performance Summary** — overall score, strengths, key improvements, preparation roadmap
+- 🚫 **Anti-Hallucination Rules** — AI is instructed never to invent candidate-specific facts
+- ⚡ **Question Type Mix** — behavioral, technical, applied, project-based, HR/situational
+- 📱 **Responsive UI** — works on desktop and mobile
 
-## Technology Stack
+---
 
-- IBM watsonx Orchestrate
-- GPT-OSS 120B via Groq
-- Retrieval-Augmented Generation (RAG)
-- CareerForge Interview Knowledge Base
-- IBM watsonx.ai
-- IBM Granite `granite-4-h-small`
-- IBM Cloud
+## IBM Bob Usage
 
-## System Workflow
+This project is built using the **IBM watsonx Orchestrate ADK (IBM Bob)**:
 
-Candidate Profile  
-↓  
-CareerForge AI  
-↓  
-RAG Retrieval  
-↓  
-Interview Knowledge Base  
-↓  
-GPT-OSS 120B via Groq  
-↓  
-Personalized Interview Question  
-↓  
-Candidate Answer  
-↓  
-Answer Evaluation  
-↓  
-Feedback and Improved Answer  
-↓  
-Next Question  
-↓  
-Final Performance Report
+| IBM Bob Component | File | Purpose |
+|---|---|---|
+| Agent Spec | `agents/careerforge_agent.yaml` | Defines the interviewer agent, model binding, and system instructions |
+| Model Spec | `models/ollama_gemma4.yaml` | Registers Ollama/Gemma4 as an IBM Bob model provider |
+| Workspace Config | `workspace_config.yaml` | Standard IBM Bob folder structure |
+| ADK SDK | `venv/` | `ibm-watsonx-orchestrate` 2.16.1 installed in project venv |
+| MCP Config | `.bob/mcp.json` | watsonx-orchestrate MCP server configuration |
 
-## RAG Knowledge Base
+The backend (`server.py`) loads the agent's system instructions directly from the IBM Bob agent YAML spec at runtime using `ibm_watsonx_orchestrate.agent_builder` conventions.
 
-CareerForge uses a custom knowledge source called:
+---
 
-**CareerForge Interview Knowledge Base**
+## Architecture
 
-It contains interview-preparation content related to:
+```
+┌─────────────────────────────────────────────────┐
+│                  Browser (index.html)            │
+│  Setup Form → Interview → Feedback → Summary    │
+│  Fetches: /api/generate-question                │
+│           /api/evaluate-answer                  │
+│           /api/generate-summary                 │
+│           /api/status                           │
+└─────────────────┬───────────────────────────────┘
+                  │ HTTP (same origin, port 8000)
+┌─────────────────▼───────────────────────────────┐
+│          FastAPI Backend (server.py)             │
+│                                                  │
+│  ① Loads agent instructions from               │
+│     agents/careerforge_agent.yaml               │
+│     (IBM Bob ADK agent spec)                    │
+│                                                  │
+│  ② Constructs structured prompts                │
+│     with anti-hallucination rules               │
+│                                                  │
+│  ③ Calls Ollama API                            │
+│     (registered as IBM Bob model:               │
+│      models/ollama_gemma4.yaml)                 │
+└─────────────────┬───────────────────────────────┘
+                  │ HTTP (localhost:11434)
+┌─────────────────▼───────────────────────────────┐
+│         Ollama (gemma4:latest, 8B, local)        │
+│  No external API key — runs on local hardware   │
+└─────────────────────────────────────────────────┘
+```
 
-- Data Science
-- Machine Learning
-- Python
-- Pandas
-- NumPy
-- SQL
-- Classification concepts
-- Evaluation metrics
-- Behavioral and HR interviews
-- Answer evaluation rubric
-- Interview scoring guidance
+---
 
-RAG retrieval was tested successfully using the predefined 1–10 answer evaluation rubric.
+## Project Structure
 
-## Answer Evaluation Framework
+```
+CareerForge-AI/
+├── index.html                 # Frontend — single-page interview UI
+├── server.py                  # Backend — FastAPI server
+├── workspace_config.yaml      # IBM Bob ADK workspace configuration
+├── README.md                  # This file
+│
+├── agents/
+│   └── careerforge_agent.yaml # IBM Bob agent definition (interviewer agent)
+│
+├── models/
+│   └── ollama_gemma4.yaml     # IBM Bob model registration (Ollama/Gemma4)
+│
+├── .bob/
+│   └── mcp.json               # IBM Bob MCP server config
+│
+├── venv/                      # Python virtual env (ibm-watsonx-orchestrate SDK)
+├── connections/               # IBM Bob connections folder (reserved)
+├── tools/                     # IBM Bob tools folder (reserved)
+├── toolkits/                  # IBM Bob toolkits folder (reserved)
+└── knowledge-bases/           # IBM Bob knowledge bases folder (reserved)
+```
 
-CareerForge evaluates candidate answers using the following scale:
+---
 
-- **9–10:** Technically accurate, relevant, complete, with strong reasoning
-- **7–8:** Mostly correct with minor omissions
-- **5–6:** Basic understanding but important details are missing
-- **3–4:** Limited understanding with major omissions
-- **1–2:** Mostly incorrect, irrelevant, or unsupported
+## How to Run
 
-## Candidate Fact Grounding
+### Prerequisites
 
-CareerForge includes Candidate Fact Grounding rules.
+| Requirement | Version | Check |
+|---|---|---|
+| Python | 3.10+ | `python --version` |
+| Ollama | Any | `ollama --version` |
+| Gemma4 model | 8B or e2b | `ollama list` |
 
-These rules prioritize candidate-provided information and instruct the agent not to invent:
+### Step 1 — Ensure Ollama is running with the Gemma 4 model
 
-- Project results
-- Evaluation metrics
-- Dataset details
-- Features
-- Tools
-- Models
-- Business impact
-- Candidate achievements
+```bash
+# Start Ollama (if not already running as a service)
+ollama serve
 
-When information is missing, placeholders should be used instead of fabricated facts.
+# Pull the model (if not already downloaded)
+ollama pull gemma4:latest
+```
 
-This reduces hallucination risk, but does not completely eliminate hallucinations because the final response still depends on the underlying language model.
+### Step 2 — Install Python dependencies into the project venv
 
-## IBM Granite Validation
+The project venv (`venv/`) already has `ibm-watsonx-orchestrate`. Run this once to add the server dependencies:
 
-IBM Granite was tested separately using IBM watsonx.ai Prompt Lab.
+```powershell
+# Windows (PowerShell)
+.\venv\Scripts\pip.exe install fastapi uvicorn httpx pyyaml
 
-Model used:
+# macOS / Linux
+./venv/bin/pip install fastapi uvicorn httpx pyyaml
+```
 
-`granite-4-h-small`
+### Step 3 — Start the backend server
 
-Granite successfully generated a relevant Data Scientist interview question while following candidate fact restrictions.
+```powershell
+# Windows — activate venv first, then run
+.\venv\Scripts\Activate.ps1
+python server.py
 
-### Important Architecture Note
+# Or run directly without activating
+.\venv\Scripts\python.exe server.py
+```
 
-The deployed CareerForge AI agent uses:
+```bash
+# macOS / Linux
+source venv/bin/activate
+python server.py
+```
 
-**GPT-OSS 120B via Groq**
+You should see:
+```
+============================================================
+  CareerForge AI — Backend Server
+  IBM Bob ADK + Ollama/Gemma4 (local, no API key)
+============================================================
+  Agent spec : agents/careerforge_agent.yaml
+  Model      : gemma4:latest
+  Ollama URL : http://localhost:11434
+  Open       : http://localhost:8000
+============================================================
+```
 
-IBM Granite was used as a separate validation component and does not power the deployed CareerForge agent.
+### Step 4 — Open the application
 
-## Deployment
+Visit **[http://localhost:8000](http://localhost:8000)** in your browser.
 
-CareerForge AI was successfully deployed to the Live environment in IBM watsonx Orchestrate.
+The status bar on the setup page shows whether the AI model is ready.
 
-The deployed agent was tested with a final-year Computer Science student profile preparing for a Data Scientist internship.
+---
 
-The agent successfully generated personalized interview questions and evaluated candidate responses.
+## Interview Flow
 
-## Token Usage
+```
+1. User fills setup form
+   (job role, experience level, skills, optional projects/resume)
+         ↓
+2. Backend generates Q1 (Behavioral/Introductory)
+   using agent system instructions from careerforge_agent.yaml
+         ↓
+3. User types and submits answer
+         ↓
+4. Backend evaluates answer via Ollama/Gemma4
+   Returns: score, strengths, improvements, better example answer
+         ↓
+5. UI shows feedback card
+         ↓
+6. User clicks "Next Question"
+         ↓
+7. Repeat steps 2–6 for Q2 (Technical), Q3 (Applied),
+   Q4 (Project), Q5 (HR/Situational)
+         ↓
+8. After Q5, backend generates final summary:
+   overall score, strengths, key improvements, preparation roadmap
+         ↓
+9. User can start a new interview
+```
 
-IBM watsonx Orchestrate FinOps dashboard results for the last 7 days:
+### Question Type Sequence
 
-- Total Tokens: **68.9K**
-- Input Tokens: **56.9K**
-- Output Tokens: **12.0K**
-- LLM Calls: **63**
-- CareerForge AI Share: **100%**
+| Question | Type | Focus |
+|---|---|---|
+| Q1 | Behavioral / Introductory | Self-introduction, motivation, background |
+| Q2 | Technical / Conceptual | Core knowledge from stated skills |
+| Q3 | Technical / Applied | Problem-solving, hands-on approach |
+| Q4 | Project-Based | Specific project, decision, or challenge |
+| Q5 | HR / Situational | Teamwork, communication, career goals |
 
-## Project Limitations
+---
 
-- Some hallucination risk still remains
-- IBM Granite was not available as the production model in the current watsonx Orchestrate tenant
-- Resume parsing is not yet automated
-- Voice interviews are not currently implemented
-- Coding interview support is not yet included
+## Grounding / Hallucination-Control Rules
+
+The AI is explicitly instructed (via agent spec) to:
+
+1. **Never invent** candidate-specific facts not mentioned by the candidate:
+   - Accuracy, ROC-AUC, F1, precision, recall scores
+   - Dataset sizes, columns, or features
+   - Project results or business impact
+   - Employers, certifications, grades, achievements
+   - Tools, models, or technologies not mentioned
+
+2. **Always use** `"This information was not provided."` when specific data is missing
+
+3. **Use placeholders** `[Insert your verified result here]` in example answers where candidate-specific data would normally appear
+
+4. **Perform a self-check** before every feedback response:
+   > "Did I add any candidate-specific fact that the candidate never provided? If yes, remove it."
+
+---
+
+## Sample Test Case
+
+**Target Role:** Data Scientist Intern  
+**Experience:** Student / Entry Level (0–1 years)  
+**Skills:** Python, Pandas, NumPy, SQL, Scikit-learn, Machine Learning
+
+**Sample Q2 (Technical):**
+> "How do you handle missing values in a dataset, and what factors influence your choice of imputation strategy?"
+
+**Sample Candidate Answer:**
+> "I usually handle missing values by checking how much data is missing first. For numerical data, I may use mean or median imputation depending on the distribution."
+
+**Expected Evaluation:**
+- Score: 5–7/10
+- Strengths: mentions checking missing data ratio; understands mean vs median
+- Improvements: does not mention MCAR/MAR/MNAR; no mention of dropping rows/columns threshold; no mention of model-based imputation
+- Better Answer: improves structure without inventing accuracy figures or dataset names
+
+---
+
+## Configuration
+
+| Environment Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
+| `OLLAMA_MODEL` | `gemma4:latest` | Model to use for inference |
+
+To use the smaller model:
+```bash
+OLLAMA_MODEL=gemma4:e2b python server.py
+```
+
+---
+
+## Screenshots
+
+> *(Add screenshots here after running the application)*
+
+| Screen | Description |
+|---|---|
+| Setup Form | ![Setup](screenshots/setup.png) |
+| Interview Question | ![Question](screenshots/question.png) |
+| Feedback | ![Feedback](screenshots/feedback.png) |
+| Final Summary | ![Summary](screenshots/summary.png) |
+
+---
+
+## Limitations
+
+- Requires Ollama running locally (not a cloud deployment)
+- Gemma 4 (8B) may occasionally produce JSON that needs repair — the backend handles this defensively
+- Interview is fixed at 5 questions
+- No persistence — session data is in-memory only
+- No authentication or user management
+
+---
 
 ## Future Scope
 
-- Resume parsing
-- Job Description matching
-- Voice-based mock interviews
-- Coding interview support
-- Interview analytics dashboard
-- Stronger hallucination safeguards
-- Direct IBM Granite integration if available
-- Multi-agent interview panels
-- Multilingual interview preparation
+- [ ] Add resume PDF upload and parsing
+- [ ] Support additional local models (Llama 3, Mistral, Phi-3)
+- [ ] Persist sessions to a local database (SQLite)
+- [ ] IBM watsonx.ai cloud model integration (when credentials are available)
+- [ ] Voice input/output support
+- [ ] Difficulty adjustment based on answer quality
+- [ ] Export interview report as PDF
 
-## Project Status
+---
 
-- CareerForge Agent: Completed
-- RAG Integration: Verified
-- RAG Retrieval: Verified
-- Live Deployment: Verified
-- Personalized Interview Generation: Verified
-- Answer Evaluation: Verified
-- IBM Granite Validation: Completed
+## Tech Stack
 
-## Author
+| Component | Technology |
+|---|---|
+| Agent Framework | IBM watsonx Orchestrate ADK (IBM Bob) 2.16.1 |
+| LLM | Ollama + Gemma 4 (8B, local) |
+| Backend | Python 3 + FastAPI + uvicorn |
+| HTTP Client | httpx (async) |
+| Frontend | Vanilla HTML + CSS + JavaScript |
+| Agent Spec | IBM Bob ADK YAML (kind: agent, kind: model) |
 
-**Suraj Patil**
+---
+
+*Built for AICTE / IBM SkillsBuild / Edunet Foundation Internship Evaluation*  
+*Demonstrates genuine IBM Bob ADK agent development with local LLM inference*
